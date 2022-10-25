@@ -634,7 +634,7 @@ func (p *Pipeline) storeFile(ctx context.Context, localFilepath, storageFilepath
 	case *livekit.S3Upload:
 		location = "S3"
 		p.Logger.Debugw("uploading to s3")
-		destinationUrl, err = sink.UploadS3(u, localFilepath, storageFilepath, mime)
+		destinationUrl, err = sink.UploadMinio(u, localFilepath, storageFilepath, mime)
 
 	case *livekit.GCPUpload:
 		location = "GCP"

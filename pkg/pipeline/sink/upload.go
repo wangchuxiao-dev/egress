@@ -20,6 +20,10 @@ import (
 
 	"github.com/livekit/egress/pkg/pipeline/params"
 	"github.com/livekit/protocol/livekit"
+	"github.com/livekit/protocol/logger"
+
+	"github.com/minio/minio-go/v7"
+	cr "github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 const (
@@ -67,6 +71,41 @@ func UploadS3(conf *livekit.S3Upload, localFilepath, storageFilepath string, mim
 	}
 
 	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", conf.Bucket, conf.Region, storageFilepath), nil
+}
+
+func UploadMinio(conf *livekit.S3Upload, localFilepath, storageFilepath string, mime params.OutputType) (location string, err error) {
+	minioUrl, err := url.Parse(conf.Endpoint)
+	if err != nil {
+		return "", err
+	}
+	opts := &minio.Options{
+		Creds: cr.NewStaticV4(conf.AccessKey, conf.Secret, ""),
+	}
+	if minioUrl.Scheme == "http" {
+		opts.Secure = false
+	} else if minioUrl.Scheme == "https" {
+		opts.Secure = true
+	}
+	MinioClient, err := minio.New(minioUrl.Host, opts)
+	if err != nil {
+		return "", err
+	}
+	fi, err := os.Stat(localFilepath)
+	if err != nil {
+		return "", err
+	}
+	file, err := os.Open(localFilepath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	_, err = MinioClient.PutObject(context.Background(), conf.Bucket, storageFilepath, file, fi.Size(), minio.PutObjectOptions{ContentType: *aws.String(string(mime))})
+	if err != nil {
+		return "", err
+	}
+	logger.Debugw("UploadMinio", "file.Name()", file.Name(), "storageFilepath", storageFilepath, "localFilepath", localFilepath, "fi.Name()", fi.Name())
+	url := conf.Endpoint + "/" + conf.Bucket + "/" + file.Name()
+	return url, nil
 }
 
 func convertS3Metadata(metadata map[string]string) map[string]*string {
