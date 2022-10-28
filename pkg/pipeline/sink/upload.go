@@ -74,6 +74,8 @@ func UploadS3(conf *livekit.S3Upload, localFilepath, storageFilepath string, mim
 }
 
 func UploadMinio(conf *livekit.S3Upload, localFilepath, storageFilepath string, mime params.OutputType) (location string, err error) {
+	logger.Debugw("UploadMinio", "localFilepath", localFilepath, "storageFilepath", storageFilepath, "conf", *conf)
+
 	minioUrl, err := url.Parse(conf.Endpoint)
 	if err != nil {
 		return "", err
