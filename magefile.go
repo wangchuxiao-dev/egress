@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	imageName    = "livekit/egress"
+	imageName    = "openim/recorder"
 	gstImageName = "livekit/gstreamer"
 	gstVersion   = "1.20.4"
 
