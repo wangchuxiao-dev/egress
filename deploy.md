@@ -27,8 +27,9 @@ cpu_cost:  #不变动
 ```
 
 # 启动命令 
-一般需要启动3-4个容器， 注意名字需要不一样， /data/test/rtc-server/config 为音视频配置目录
+一般需要启动3-4个容器， 注意容器名字名字需要不一样， /data/test/rtc-server/config 为音视频配置目录, 以下例子为启动3个openIM recorder进程 可以同时为3个音视频房间录制音视频
 ```
 docker run -d --rm --name openIM_recorder1 --net=host -e EGRESS_CONFIG_FILE=/out/recorder.yaml -v /data/test/rtc-server/config:/out openim/recorder;
-
+docker run -d --rm --name openIM_recorder2 --net=host -e EGRESS_CONFIG_FILE=/out/recorder.yaml -v /data/test/rtc-server/config:/out openim/recorder;
+docker run -d --rm --name openIM_recorder3 --net=host -e EGRESS_CONFIG_FILE=/out/recorder.yaml -v /data/test/rtc-server/config:/out openim/recorder;
 ```
